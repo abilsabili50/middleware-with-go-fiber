@@ -1,0 +1,8 @@
+# IDE Files
+.vscode
+.idea
+
+# Misc
+*.env
+build/
+temp/

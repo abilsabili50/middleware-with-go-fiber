@@ -1,0 +1,392 @@
+basePath: /api/v1
+definitions:
+  dto.CreateTaskRequest:
+    properties:
+      desc:
+        type: string
+      is_public:
+        type: boolean
+      title:
+        type: string
+    required:
+    - desc
+    - is_public
+    - title
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      token_type:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  dto.Response-any:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.Response-array_dto_TaskResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/dto.TaskResponse'
+        type: array
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.Response-dto_LoginResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.LoginResponse'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.Response-dto_TaskResponse:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.TaskResponse'
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.TaskResponse:
+    properties:
+      created_at:
+        type: string
+      desc:
+        type: string
+      id:
+        type: string
+      is_public:
+        type: boolean
+      owner:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Here is a documentation of this API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Middleware Implementation API with Go-Fiber
+  version: "1.0"
+paths:
+  /tasks:
+    get:
+      description: find all public tasks
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-array_dto_TaskResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TaskResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: FindPublicTasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: add new task (requires authentication)
+      parameters:
+      - description: create task input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: CreateTask
+      tags:
+      - tasks
+  /tasks/{taskId}:
+    get:
+      description: find task by task id (requires authentication)
+      parameters:
+      - description: task id
+        in: path
+        name: taskId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-dto_TaskResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TaskResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: FindTaskById
+      tags:
+      - tasks
+  /tasks/my:
+    get:
+      description: find all my tasks (requires authentication)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-array_dto_TaskResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.TaskResponse'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      security:
+      - BearerAuth: []
+      summary: FindMyTasks
+      tags:
+      - tasks
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: login to authenticate
+      parameters:
+      - description: user login input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-dto_LoginResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: Login
+      tags:
+      - users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: create new user
+      parameters:
+      - description: user registration input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  items:
+                    type: string
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.Response-any'
+            - properties:
+                data:
+                  type: object
+              type: object
+      summary: Register
+      tags:
+      - users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
